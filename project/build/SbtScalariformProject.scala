@@ -1,3 +1,6 @@
+/* sbt Scalariform plugin
+ * Copyright 2010 Olivier Michallat
+ */
 package com.github.olim7t.sbtscalariform
 
 import sbt._

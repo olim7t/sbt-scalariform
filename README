@@ -1,0 +1,10 @@
+An sbt plugin to format your Scala source files with Scalariform.
+
+This is a very early version. But it works on my dummy test project :-)
+
+Note: the plugin forks a new VM to invoke Scalariform; this is not by design but required, since sbt project definitions are compiled against Scala 2.7.7, while Scalariform uses 2.8.0.RC6.
+
+TODO:
+* batch invocations instead of forking a new process for each source file.
+* provide a way to configure Scalariform. 
+* `sbt update` needs to be run on the first build, in order to download the Scalariform dependency. I don't think this is avoidable, but I should probably add a warning if the jar is missing.

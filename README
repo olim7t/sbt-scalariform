@@ -7,4 +7,3 @@ Note: the plugin forks a new VM to invoke Scalariform; this is not by design but
 TODO:
 * batch invocations instead of forking a new process for each source file.
 * provide a way to configure Scalariform. 
-* `sbt update` needs to be run on the first build, in order to download the Scalariform dependency. I don't think this is avoidable, but I should probably add a warning if the jar is missing.

@@ -11,11 +11,16 @@ import java.io.File
 trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 	import ScalariformPlugin._
 
+	// Use a custom private configuration to retrieve the binaries without
+	// leaking the dependency to the client project.
 	val sfConfig = config("sfConfig") hide
-	val scalariform = "com.github.mdr" % "scalariform.core" % "0.0.4" % "sfConfig" from "http://scalariform.googlecode.com/svn/trunk/update-site/plugins/scalariform.core_0.0.4.201006281921.jar"
-	def scalariformClasspath = descendents(configurationPath(sfConfig), "*.jar").absString
+	val sfDep = "com.github.mdr" % "scalariform.core" % "0.0.4" % "sfConfig" from "http://scalariform.googlecode.com/svn/trunk/update-site/plugins/scalariform.core_0.0.4.201006281921.jar"
+	def sfClasspath: Option[String] = {
+		val jarFinder = descendents(configurationPath(sfConfig), "*.jar")
+		if (jarFinder.get.isEmpty) None else Some(jarFinder.absString)
+	}
 
-	def formatterScalaJars = {
+	def sfScalaJars = {
 		val si = getScalaInstance(ScalariformScalaVersion)
 		si.libraryJar :: si.compilerJar :: Nil
 	}
@@ -32,13 +37,15 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 	override def compileAction = super.compileAction dependsOn(formatSources)
 	override def testCompileAction = super.testCompileAction dependsOn(formatTests)
 
-	private def runFormatter(sources: Iterable[Path]): Option[String] = {
-		val forkFormatter = new ForkScala(ScalariformMainClass)
-		for (source <- sources) {
-			log.debug("Formatting " + source)
-			forkFormatter(None, Seq("-cp", scalariformClasspath) , formatterScalaJars, Seq("-i", source.absolutePath), log) 
-		}
-		None
+	private def runFormatter(sources: Iterable[Path]): Option[String] = sfClasspath match {
+		case None => Some("Scalariform jar not found. Please run update.")
+		case Some(cp) =>
+			val forkFormatter = new ForkScala(ScalariformMainClass)
+			for (source <- sources) {
+				log.debug("Formatting " + source)
+				forkFormatter(None, Seq("-cp", cp) , sfScalaJars, Seq("-i", source.absolutePath), log) 
+			}
+			None
 	}
 }
 object ScalariformPlugin {

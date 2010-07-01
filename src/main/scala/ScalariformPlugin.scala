@@ -13,17 +13,19 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 
 	// Use a custom private configuration to retrieve the binaries without
 	// leaking the dependency to the client project.
-	val sfConfig = config("sfConfig") hide
-	val sfDep = "com.github.mdr" % "scalariform.core" % "0.0.4" % "sfConfig" from "http://scalariform.googlecode.com/svn/trunk/update-site/plugins/scalariform.core_0.0.4.201006281921.jar"
-	def sfClasspath: Option[String] = {
+	private val sfConfig = config("sfConfig") hide
+	private val sfDep = "com.github.mdr" % "scalariform.core" % "0.0.4" % "sfConfig" from "http://scalariform.googlecode.com/svn/trunk/update-site/plugins/scalariform.core_0.0.4.201006281921.jar"
+	private def sfClasspath: Option[String] = {
 		val jarFinder = descendents(configurationPath(sfConfig), "*.jar")
 		if (jarFinder.get.isEmpty) None else Some(jarFinder.absString)
 	}
 
-	def sfScalaJars = {
+	private def sfScalaJars = {
 		val si = getScalaInstance(ScalariformScalaVersion)
 		si.libraryJar :: si.compilerJar :: Nil
 	}
+
+	def scalariformOptions = Seq[ScalariformOption]()
 
 	lazy val formatSources = formatSourcesAction
 	lazy val formatTests = formatTestsAction
@@ -41,9 +43,10 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 		case None => Some("Scalariform jar not found. Please run update.")
 		case Some(cp) =>
 			val forkFormatter = new ForkScala(ScalariformMainClass)
+			val options = scalariformOptions.map(_.asArgument)
 			for (source <- sources) {
 				log.debug("Formatting " + source)
-				forkFormatter(None, Seq("-cp", cp) , sfScalaJars, Seq("-i", source.absolutePath), log) 
+				forkFormatter(None, Seq("-cp", cp) , sfScalaJars, options ++ Seq("-i", source.absolutePath), log) 
 			}
 			None
 	}

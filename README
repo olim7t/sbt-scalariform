@@ -6,4 +6,4 @@ Note: the plugin forks a new VM to invoke Scalariform; this is not by design but
 
 TODO:
 * batch invocations instead of forking a new process for each source file.
-* provide a way to configure Scalariform. 
+* add support for -t (still making -i the default if nothing is specified) and -v.

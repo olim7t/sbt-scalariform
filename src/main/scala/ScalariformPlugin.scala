@@ -43,10 +43,13 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 		case None => Some("Scalariform jar not found. Please run update.")
 		case Some(cp) =>
 			val forkFormatter = new ForkScala(ScalariformMainClass)
-			val options = scalariformOptions.map(_.asArgument)
+			val providedOpts = scalariformOptions
+			// Assume InPlace if neither InPlace nor Test are provided
+			val finalOpts = if ((providedOpts contains InPlace) || (providedOpts contains Test)) providedOpts else providedOpts ++ Seq(InPlace)
+			val args = finalOpts.map(_.asArgument)
 			for (source <- sources) {
 				log.debug("Formatting " + source)
-				forkFormatter(None, Seq("-cp", cp) , sfScalaJars, options ++ Seq("-i", source.absolutePath), log) 
+				forkFormatter(None, Seq("-cp", cp) , sfScalaJars, args ++ Seq(source.absolutePath), log) 
 			}
 			None
 	}

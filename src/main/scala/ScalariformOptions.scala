@@ -32,3 +32,12 @@ case class RewriteArrowSymbols(enabled: Boolean) extends BooleanOption {
 case class SpaceBeforeColon(enabled: Boolean) extends BooleanOption {
 	override def name = "spaceBeforeColon"
 }
+case object VerboseScalariform extends ScalariformOption {
+	override def asArgument = "-v"
+}
+case object Test extends ScalariformOption {
+	override def asArgument = "-t"
+}
+case object InPlace extends ScalariformOption {
+	override def asArgument = "-i"
+}

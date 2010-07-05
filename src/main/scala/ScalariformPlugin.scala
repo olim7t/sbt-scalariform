@@ -7,6 +7,7 @@ import sbt._
 import sbt.Fork.ForkScala
 import scala.io.Source
 import java.io.File
+import FileUtilities.{Newline, withTemporaryFile, write}
 
 trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 	import ScalariformPlugin._
@@ -54,10 +55,19 @@ object ScalariformPlugin {
 			// Assume InPlace if neither InPlace nor Test are provided
 			val finalOpts = if ((options contains InPlace) || (options contains Test)) options else options ++ Seq(InPlace)
 			val args = finalOpts.map(_.asArgument)
-			for (source <- sources) {
-				log.debug("Formatting " + source)
-				forkFormatter(None, Seq("-cp", cp) , scalaJars, args ++ Seq(source.absolutePath), log) 
+
+			withTemporaryFile(log, "sbt-scalariform", ".lst") { file =>
+				val error = write(file, sources.map(_.absolutePath).mkString(Newline), log) orElse {
+					val errorCode = forkFormatter(None, Seq("-cp", cp), scalaJars, args ++ Seq("-l=" + file.getAbsolutePath), log)
+					errorCode match {
+						case 0 => None
+						case n => Some("Scalariform exited with error code " + n)
+					}
+				}
+				error toLeft ()
+			} match {
+				case Left(error) => Some(error)
+				case Right(_) => None
 			}
-			None
 	}
 }

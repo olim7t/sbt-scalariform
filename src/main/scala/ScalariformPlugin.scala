@@ -4,8 +4,8 @@
 package com.github.olim7t.sbtscalariform
 
 import sbt._
-import scala.io.Source
 import sbt.Fork.ForkScala
+import scala.io.Source
 import java.io.File
 
 trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
@@ -33,30 +33,31 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 	def sourceTimestamp = "sources.lastFormatted"
 	def testTimestamp = "tests.lastFormatted"
 
-	def formatSourcesAction = forAllSourcesTask(sourceTimestamp from mainSources)(runFormatter) describedAs("Format main Scala sources")
-	def formatTestsAction = forAllSourcesTask(testTimestamp from testSources)(runFormatter) describedAs("Format test Scala sources")
+	private val configuredRun = runFormatter(sfScalaJars, sfClasspath, scalariformOptions, log) _
+
+	def formatSourcesAction = forAllSourcesTask(sourceTimestamp from mainSources)(configuredRun) describedAs("Format main Scala sources")
+	def formatTestsAction = forAllSourcesTask(testTimestamp from testSources)(configuredRun) describedAs("Format test Scala sources")
 
 	override def compileAction = super.compileAction dependsOn(formatSources)
 	override def testCompileAction = super.testCompileAction dependsOn(formatTests)
-
-	private def runFormatter(sources: Iterable[Path]): Option[String] = sfClasspath match {
-		case None => Some("Scalariform jar not found. Please run update.")
-		case Some(cp) =>
-			val forkFormatter = new ForkScala(ScalariformMainClass)
-			val providedOpts = scalariformOptions
-			// Assume InPlace if neither InPlace nor Test are provided
-			val finalOpts = if ((providedOpts contains InPlace) || (providedOpts contains Test)) providedOpts else providedOpts ++ Seq(InPlace)
-			val args = finalOpts.map(_.asArgument)
-			for (source <- sources) {
-				log.debug("Formatting " + source)
-				forkFormatter(None, Seq("-cp", cp) , sfScalaJars, args ++ Seq(source.absolutePath), log) 
-			}
-			None
-	}
 }
 object ScalariformPlugin {
 	/** The version of Scala used to run Scalariform.*/
 	val ScalariformScalaVersion = "2.8.0.RC6"
 
 	val ScalariformMainClass = "scalariform.commandline.Main"
+
+	def runFormatter(scalaJars: List[File], classpath: Option[String], options: Seq[ScalariformOption], log: Logger)(sources: Iterable[Path]): Option[String] = classpath match {
+		case None => Some("Scalariform jar not found. Please run update.")
+		case Some(cp) =>
+			val forkFormatter = new ForkScala(ScalariformMainClass)
+			// Assume InPlace if neither InPlace nor Test are provided
+			val finalOpts = if ((options contains InPlace) || (options contains Test)) options else options ++ Seq(InPlace)
+			val args = finalOpts.map(_.asArgument)
+			for (source <- sources) {
+				log.debug("Formatting " + source)
+				forkFormatter(None, Seq("-cp", cp) , scalaJars, args ++ Seq(source.absolutePath), log) 
+			}
+			None
+	}
 }

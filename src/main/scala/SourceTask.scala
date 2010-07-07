@@ -52,9 +52,11 @@ object SourceTasks {
 	}
 	def processAll(label: String, files: TimestampSources, log: Logger)(globalAction: Iterable[Path] => Option[String]): Option[String] = {
 		import files._
-		val actionError = globalAction(sources.filter(_.lastModified > timestamp.lastModified))
-		val touchError = FileUtilities.touch(timestamp, log)
-		val errors = actionError ++ touchError
-		if (errors.isEmpty) None else Some(errors mkString "\n")
+		val modified = sources.filter(_.lastModified > timestamp.lastModified)
+		if (modified isEmpty)
+			None
+		else
+			globalAction(modified) orElse
+				FileUtilities.touch(timestamp, log)
 	}
 }

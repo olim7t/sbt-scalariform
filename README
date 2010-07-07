@@ -1,9 +1,17 @@
 An sbt plugin to format your Scala source files with Scalariform.
 
-This is a very early version. But it works on my dummy test project :-)
+Sample use:
+  import sbt._
+  import com.github.olim7t.sbtscalariform._
+  
+  class MySbtProject(info: ProjectInfo) extends DefaultProject(info) with ScalariformPlugin {
+    override def scalariformOptions = Seq(VerboseScalariform) // See ScalariformOptions.scala and the Scalariform
+                                                              // docs for the list of options
+  }
 
 Note: the plugin forks a new VM to invoke Scalariform; this is not by design but required, since sbt project definitions are compiled against Scala 2.7.7, while Scalariform uses 2.8.0.RC6.
 
 TODO:
-* batch invocations instead of forking a new process for each source file.
-* add support for -t (still making -i the default if nothing is specified) and -v.
+* write better documentation
+* format sources :-)
+* sort out the bootstrap process: when starting with a clean project, the scalariform JAR is not downloaded automatically, I have to execute `update` and then `reload`.

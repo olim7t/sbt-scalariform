@@ -33,7 +33,7 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 	def sourceTimestamp = "sources.lastFormatted"
 	def testTimestamp = "tests.lastFormatted"
 
-	private val configuredRun = ScalariformPlugin.runFormatter(sfScalaJars, sfClasspath, scalariformOptions, log) _
+	private val configuredRun = ScalariformPlugin.runFormatter(sfScalaJars, sfClasspath _, scalariformOptions, log) _
 
 	def formatSourcesAction = forAllSourcesTask(sourceTimestamp from mainSources)(configuredRun) describedAs("Format main Scala sources")
 	def formatTestsAction = forAllSourcesTask(testTimestamp from testSources)(configuredRun) describedAs("Format test Scala sources")
@@ -50,7 +50,7 @@ object ScalariformPlugin {
 
 	val MainClass = "scalariform.commandline.Main"
 
-	def runFormatter(scalaJars: List[File], classpath: Option[String], options: Seq[ScalariformOption], log: Logger)(sources: Iterable[Path]): Option[String] = classpath match {
+	def runFormatter(scalaJars: List[File], classpath: () => Option[String], options: Seq[ScalariformOption], log: Logger)(sources: Iterable[Path]): Option[String] = classpath() match {
 		case None => Some("Scalariform jar not found. Please run update.")
 		case Some(cp) =>
 			val forkFormatter = new ForkScala(MainClass)

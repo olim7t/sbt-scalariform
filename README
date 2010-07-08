@@ -14,4 +14,4 @@ Note: the plugin forks a new VM to invoke Scalariform; this is not by design but
 TODO:
 * write better documentation
 * format sources :-)
-* sort out the bootstrap process: when starting with a clean project, the scalariform JAR is not downloaded automatically, I have to execute `update` and then `reload`.
+* see if there is a way not to have to call `update` manually after the plugin is first added.

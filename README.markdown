@@ -40,6 +40,7 @@ The plugin forks a new VM to invoke Scalariform; this is required, since sbt pro
 
 #To do / known issues
 
+* deploy in a public repo (scala-tools?)
 * improve documentation.
 * eat my own dog food: format the sources :-)
 * `update` must be called manually after the plugin is first added. See if there is a workaround.

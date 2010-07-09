@@ -28,18 +28,18 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 	def scalariformOptions = Seq[ScalariformOption]()
 
 	lazy val formatSources = formatSourcesAction
-	lazy val formatTests = formatTestsAction
+	lazy val testFormatSources = testFormatSourcesAction
 
-	def sourceTimestamp = "sources.lastFormatted"
-	def testTimestamp = "tests.lastFormatted"
+	def sourcesTimestamp = "sources.lastFormatted"
+	def testSourcesTimestamp = "testSources.lastFormatted"
 
 	private val configuredRun = ScalariformPlugin.runFormatter(sfScalaJars, sfClasspath _, scalariformOptions, log) _
 
-	def formatSourcesAction = forAllSourcesTask(sourceTimestamp from mainSources)(configuredRun) describedAs("Format main Scala sources")
-	def formatTestsAction = forAllSourcesTask(testTimestamp from testSources)(configuredRun) describedAs("Format test Scala sources")
+	def formatSourcesAction = forAllSourcesTask(sourcesTimestamp from mainSources)(configuredRun) describedAs("Format main Scala sources")
+	def testFormatSourcesAction = forAllSourcesTask(testSourcesTimestamp from testSources)(configuredRun) describedAs("Format test Scala sources")
 
 	override def compileAction = super.compileAction dependsOn(formatSources)
-	override def testCompileAction = super.testCompileAction dependsOn(formatTests)
+	override def testCompileAction = super.testCompileAction dependsOn(testFormatSources)
 }
 object ScalariformPlugin {
 	val Version = "0.0.4.201007071230"

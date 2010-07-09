@@ -10,8 +10,6 @@ This is done in `project/plugins/Plugins.scala`:
 
 	import sbt._
 	
-	import java.net.URL
-	
 	class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
 		val formatter = "com.github.olim7t" % "sbt-scalariform" % "1.0.0"
 	}
@@ -31,14 +29,14 @@ Mix the `ScalariformPlugin` trait into your project definition and customize the
 
 This will by default format all your main and test sources. If you need to customize this behavior, you can override the `formatSourcesAction` and `testFormatSourcesAction` methods, for instance:
 
-	  // Disable tests formatting completely
+	  // Completely disable formatting of the tests
 	  override def testFormatSourcesAction = task { None }
 
 #How it works
 
 Each formatting action (main, test) is performed just before the corresponding compile action. The plugin uses a timestamp file in the target directory to detect which files have changed and therefore need to be reformatted.
 
-The plugin forks a new VM to invoke Scalariform; this is required, since sbt project definitions are compiled against Scala 2.7.7, while Scalariform uses 2.8.0.RC6. The list of files to format is passed in a temporary file (fed to Scalariform's `-l` option).
+The plugin forks a new VM to invoke Scalariform; this is required, since sbt project definitions are compiled against Scala 2.7.7, while Scalariform uses 2.8.0.RC6. The list of files to format is passed through a temporary file (fed to Scalariform's `-l` option).
 
 #To do / known issues
 

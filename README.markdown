@@ -42,7 +42,7 @@ The plugin forks a new VM to invoke Scalariform; this is required, since sbt pro
 
 * deploy in a public repo (scala-tools?)
 * improve documentation.
-* eat my own dog food: format the sources :-)
+* eat my own dog food: have the plugin format its own sources (will wait until a first stable version is deployed in a public repo)
 * `update` must be called manually after the plugin is first added. See if there is a workaround.
 * the formatting options are currently global to the main and test sources. This could be changed to allow separate customization.
 

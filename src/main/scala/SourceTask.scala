@@ -27,11 +27,6 @@ trait SourceTasks extends Project {
 	implicit def wrapTimestamp(name: String): TimestampWrapper =
 		SourceTasks.wrapTimestamp(outputPath, name)
 
-	/** Runs an individual action on each modified source. */
-	def forEachSourceTask(label: String, files: TimestampSources)(action: Path => Option[String]): Task =
-		task { SourceTasks.processEach(label, files, log)(action) }
-	def forEachSourceTask(files: TimestampSources)(action: Path => Option[String]): Task = forEachSourceTask("", files)(action)
-
 	/** Runs a global action that takes the list of modified sources. */
 	def forAllSourcesTask(label: String, files: TimestampSources)(action: Iterable[Path] => Option[String]): Task =
 		task { SourceTasks.processAll(label, files, log)(action) }
@@ -44,13 +39,6 @@ object SourceTasks {
 			def timestamp = basePath / name asFile
 			def sources = sourceFinder.get
 		}
-	}
-	def processEach(label: String, files: TimestampSources, log: Logger)(action: Path => Option[String]): Option[String] = {
-		import files._
-		val fileErrors = sources.filter(_.lastModified > timestamp.lastModified).flatMap(action(_))
-		val touchError = FileUtilities.touch(timestamp, log)
-		val errors = fileErrors ++ touchError
-		if (errors.isEmpty) None else Some(errors mkString "\n")
 	}
 	def processAll(label: String, files: TimestampSources, log: Logger)(globalAction: Iterable[Path] => Option[String]): Option[String] = {
 		import files._

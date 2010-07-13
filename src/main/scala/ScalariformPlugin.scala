@@ -7,7 +7,8 @@ import sbt._
 import sbt.Fork.ForkScala
 import scala.io.Source
 import java.io.File
-import FileUtilities.{Newline, withTemporaryFile, write}
+import FileUtilities.{Newline, write}
+import Actions._
 
 trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 
@@ -53,24 +54,18 @@ object ScalariformPlugin {
 	def runFormatter(scalaJars: List[File], classpath: () => Option[String], options: Seq[ScalariformOption], log: Logger)(sources: Iterable[Path]): Option[String] = classpath() match {
 		case None => Some("Scalariform jar not found. Please run update.")
 		case Some(cp) =>
-			val forkFormatter = new ForkScala(MainClass)
-			// Assume InPlace if neither InPlace nor Test are provided
-			val finalOpts = if ((options contains InPlace) || (options contains Test)) options else options ++ Seq(InPlace)
-			val args = finalOpts.map(_.asArgument)
-
-			// TODO refactor this block of code to make it actually readable
-			withTemporaryFile(log, "sbt-scalariform", ".lst") { file =>
-				val error = write(file, sources.map(_.absolutePath).mkString(Newline), log) orElse {
-					val errorCode = forkFormatter(None, Seq("-cp", cp), scalaJars, args ++ Seq("-l=" + file.getAbsolutePath), log)
-					errorCode match {
-						case 0 => None
-						case n => Some("Scalariform exited with error code " + n)
-					}
+			def run(listOfFiles: File): Option[String] = {
+				val fork = new ForkScala(MainClass)
+				// Assume InPlace if neither InPlace nor Test are provided
+				val finalOpts = if ((options contains InPlace) || (options contains Test)) options else options ++ Seq(InPlace)
+				val args = finalOpts.map(_.asArgument)
+				withSuccessCode(0, "Scalariform invocation failed") {
+					fork(None, Seq("-cp", cp), scalaJars, args ++ Seq("-l=" + listOfFiles.getAbsolutePath), log)
 				}
-				error toLeft ()
-			} match {
-				case Left(error) => Some(error)
-				case Right(_) => None
+			}
+			withTemporaryFile(log, "sbt-scalariform", ".lst") { file =>
+				write(file, sources.map(_.absolutePath).mkString(Newline), log) orElse
+				run(file)
 			}
 	}
 }

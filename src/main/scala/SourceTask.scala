@@ -6,11 +6,11 @@ package com.github.olim7t.sbtscalariform
 import sbt._
 import java.io.File
 
-trait TimestampSources extends NotNull {
+sealed trait TimestampSources extends NotNull {
 	def timestamp: File
 	def sources: Iterable[Path]
 }
-trait TimestampWrapper extends NotNull {
+sealed trait TimestampWrapper extends NotNull {
 	def from(sources: => Iterable[Path]): TimestampSources =
 		from(Path.lazyPathFinder(sources))
 	def from(sources: PathFinder): TimestampSources
@@ -20,6 +20,8 @@ trait TimestampWrapper extends NotNull {
 * the task and a timestamp file in the output directory.
 * When the task is run, we want to process sources newer than the timestamp; then the timestamp
 * is touched.
+*
+* Note: the design of this trait (and the associated types) is derived from sbt.FileTasks.
 */
 trait SourceTasks extends Project {
 	implicit def wrapTimestamp(name: String): TimestampWrapper =

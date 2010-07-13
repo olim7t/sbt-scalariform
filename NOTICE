@@ -1,0 +1,7 @@
+sbt Scalariform plugin
+Copyright 2010 Olivier Michallat
+Licensed under BSD-style license (see LICENSE).
+
+Portions based on code from Simple Build Tool (sbt)
+Copyright 2008, 2009, 2010 Steven Blundy, Josh Cough, Nathan Hamblen, Mark Harrah, David MacIver, Mikko Peltonen, Tony Sloane, Vesa Vilhonen
+Licensed under BSD-style license (see licenses/LICENSE_sbt)

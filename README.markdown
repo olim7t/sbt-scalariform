@@ -36,7 +36,7 @@ This will by default format all your main and test sources. If you need to custo
 
 Each formatting action (main, test) is performed just before the corresponding compile action. The plugin uses a timestamp file in the target directory to detect which files have changed and therefore need to be reformatted.
 
-The plugin forks a new VM to invoke Scalariform; this is required, since sbt project definitions are compiled against Scala 2.7.7, while Scalariform uses 2.8.0.RC6. The list of files to format is passed through a temporary file (fed to Scalariform's `-l` option).
+The plugin forks a new VM to invoke Scalariform; this is required, since sbt project definitions are compiled against Scala 2.7.7, while Scalariform uses 2.8.0. The list of files to format is passed through a temporary file (fed to Scalariform's `-l` option).
 
 #To do / known issues
 

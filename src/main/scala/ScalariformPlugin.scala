@@ -43,11 +43,11 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
   override def testCompileAction = super.testCompileAction dependsOn (testFormatSources)
 }
 object ScalariformPlugin {
-  val Version = "0.0.4.201007071230"
+  val Version = "0.0.4.201007151246"
   val CoreUrl = "http://scalariform.googlecode.com/svn/trunk/update-site/plugins/scalariform.core_" + Version + ".jar"
 
   /** The version of Scala used to run Scalariform.*/
-  val ScalaVersion = "2.8.0.RC6"
+  val ScalaVersion = "2.8.0"
 
   val MainClass = "scalariform.commandline.Main"
 

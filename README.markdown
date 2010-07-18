@@ -32,6 +32,10 @@ This will by default format all your main and test sources. If you need to custo
 	  // Completely disable formatting of the tests
 	  override def testFormatSourcesAction = task { None }
 
+You can also use a separate set of options for test sources:
+
+    override def scalariformTestOptions = Seq(PreserveSpaceBeforeArguments(true))
+
 #How it works
 
 Each formatting action (main, test) is performed just before the corresponding compile action. The plugin uses a timestamp file in the target directory to detect which files have changed and therefore need to be reformatted.
@@ -41,8 +45,6 @@ The plugin forks a new VM to invoke Scalariform; this is required, since sbt pro
 #To do / known issues
 
 * deploy in a public repo (scala-tools?)
-* improve documentation.
 * eat my own dog food: have the plugin format its own sources (will wait until a first stable version is deployed in a public repo)
 * `update` must be called manually after the plugin is first added. See if there is a workaround.
-* the formatting options are currently global to the main and test sources. This could be changed to allow separate customization.
 

@@ -15,7 +15,7 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
   // Use a custom private configuration to retrieve the binaries without
   // leaking the dependency to the client project.
   private val sfConfig = config("sfConfig") hide
-  private val sfDep = "com.github.mdr" % "scalariform.core" % ScalariformPlugin.Version % "sfConfig" from ScalariformPlugin.CoreUrl
+  private val sfDep = "com.github.mdr" % "scalariform" % ScalariformPlugin.Version % "sfConfig" from ScalariformPlugin.CoreUrl
   private def sfClasspath: Option[String] = {
     val jarFinder = descendents(configurationPath(sfConfig), "*.jar")
     if (jarFinder.get.isEmpty) None else Some(jarFinder.absString)
@@ -43,8 +43,8 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
   override def testCompileAction = super.testCompileAction dependsOn (testFormatSources)
 }
 object ScalariformPlugin {
-  val Version = "0.0.4.201007151246"
-  val CoreUrl = "http://scalariform.googlecode.com/svn/trunk/update-site/plugins/scalariform.core_" + Version + ".jar"
+  val Version = "0.0.5.201007171249"
+  val CoreUrl = "http://scalariform.googlecode.com/svn/trunk/update-site/plugins/scalariform_" + Version + ".jar"
 
   /** The version of Scala used to run Scalariform.*/
   val ScalaVersion = "2.8.0"

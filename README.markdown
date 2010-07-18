@@ -34,7 +34,7 @@ This will by default format all your main and test sources. If you need to custo
 
 You can also use a separate set of options for test sources:
 
-    override def scalariformTestOptions = Seq(PreserveSpaceBeforeArguments(true))
+	  override def scalariformTestOptions = Seq(PreserveSpaceBeforeArguments(true))
 
 #How it works
 

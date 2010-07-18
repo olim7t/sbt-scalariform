@@ -23,8 +23,8 @@ case class DoubleIndentClassDeclaration(enabled: Boolean) extends BooleanOption 
 case class IndentSpaces(spaces: Int) extends ScalariformOption {
   override def asArgument = "-indentSpaces=" + spaces
 }
-case class PreserveSpacesBeforeArguments(enabled: Boolean) extends BooleanOption {
-  override def name = "preserveSpacesBeforeArguments"
+case class PreserveSpaceBeforeArguments(enabled: Boolean) extends BooleanOption {
+  override def name = "preserveSpaceBeforeArguments"
 }
 case class RewriteArrowSymbols(enabled: Boolean) extends BooleanOption {
   override def name = "rewriteArrowSymbols"

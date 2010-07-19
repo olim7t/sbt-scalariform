@@ -2,8 +2,6 @@ An [sbt](http://code.google.com/p/simple-build-tool/) plugin to format your Scal
 
 #How to use
 
-The plugin is not yet deployed in a public repository. You'll need to clone the git repo and run `sbt publish-local` from the base directory.
-
 ##Declaring the plugin
 
 This is done in `project/plugins/Plugins.scala`:
@@ -44,7 +42,5 @@ The plugin forks a new VM to invoke Scalariform; this is required, since sbt pro
 
 #To do / known issues
 
-* deploy in a public repo (scala-tools?)
-* eat my own dog food: have the plugin format its own sources (will wait until a first stable version is deployed in a public repo)
 * `update` must be called manually after the plugin is first added. See if there is a workaround.
 

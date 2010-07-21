@@ -9,7 +9,7 @@ This is done in `project/plugins/Plugins.scala`:
 	import sbt._
 	
 	class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
-		val formatter = "com.github.olim7t" % "sbt-scalariform" % "1.0.0"
+	  val formatter = "com.github.olim7t" % "sbt-scalariform" % "1.0.0"
 	}
 
 ##Configuring your project
@@ -34,13 +34,17 @@ You can also use a separate set of options for test sources:
 
 	  override def scalariformTestOptions = Seq(PreserveSpaceBeforeArguments(true))
 
+##Running
+
+From sbt, reload your project definition by running `reload` (or just launch `sbt` if you were not already in interactive mode). This will also download and compile the plugin.
+
+**Then** you need to run `update` manually to download Scalariform. *Note:* this is normal sbt behavior, since Scalariform is set up as a dependency of your project (not of the plugin), in order to allow forking (see below).
+
+Your project now has two new actions: `format-sources` and `test-format-sources`, which get run automatically before `compile` and `test-compile` respectively.
+
 #How it works
 
-Each formatting action (main, test) is performed just before the corresponding compile action. The plugin uses a timestamp file in the target directory to detect which files have changed and therefore need to be reformatted.
+For each type of sources (main, test), the plugin uses a timestamp file in the target directory to detect which files have changed, and therefore need to be reformatted.
 
 The plugin forks a new VM to invoke Scalariform; this is required, since sbt project definitions are compiled against Scala 2.7.7, while Scalariform uses 2.8.0. The list of files to format is passed through a temporary file (fed to Scalariform's `-l` option).
-
-#To do / known issues
-
-* `update` must be called manually after the plugin is first added. See if there is a workaround.
 

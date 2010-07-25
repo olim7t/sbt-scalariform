@@ -12,10 +12,12 @@ import Actions._
 
 trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 
+  val scalaToolsSnapshotRepo = "Scala-Tools Maven Repository" at "http://scala-tools.org/repo-snapshots"
+
   // Use a custom private configuration to retrieve the binaries without
   // leaking the dependency to the client project.
   private val sfConfig = config("sfConfig") hide
-  private val sfDep = "com.github.mdr" % "scalariform" % ScalariformPlugin.Version % "sfConfig" from ScalariformPlugin.CoreUrl
+  private val sfDep = "org.scalariform" %% "scalariform" % ScalariformPlugin.Version % "sfConfig"
   private def sfClasspath: Option[String] = {
     val jarFinder = descendents(configurationPath(sfConfig), "*.jar")
     if (jarFinder.get.isEmpty) None else Some(jarFinder.absString)
@@ -47,8 +49,7 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
   override def testCompileAction = super.testCompileAction dependsOn (testFormatSources)
 }
 object ScalariformPlugin {
-  val Version = "0.0.5.201007171249"
-  val CoreUrl = "http://scalariform.googlecode.com/svn/trunk/update-site/plugins/scalariform_" + Version + ".jar"
+  val Version = "0.0.5-SNAPSHOT"
 
   /** The version of Scala used to run Scalariform.*/
   val ScalaVersion = "2.8.0"

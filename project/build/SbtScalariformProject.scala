@@ -11,7 +11,11 @@ class SbtScalariformProject(info: ProjectInfo) extends PluginProject(info) with 
 	// Publishing
   override def managedStyle = ManagedStyle.Maven
 
-  val publishTo = "Scala Tools Nexus" at "http://nexus.scala-tools.org/content/repositories/releases/"
+  val publishTo =
+    if (version.toString.endsWith("-SNAPSHOT"))
+      "Scala Tools Nexus (snapshots)" at "http://nexus.scala-tools.org/content/repositories/snapshots/"
+    else
+      "Scala Tools Nexus (releases)" at "http://nexus.scala-tools.org/content/repositories/releases/"
   
   Credentials(Path.userHome / ".ivy2" / ".credentials", log)
 

@@ -12,14 +12,15 @@ import Actions._
 
 trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 
-  val scalaToolsSnapshotRepo = "Scala-Tools Maven Repository" at "http://scala-tools.org/repo-snapshots"
-
-  // Use a custom private configuration to retrieve the binaries without
-  // leaking the dependency to the client project.
-  private val sfConfig = config("sfConfig") hide
-  private val sfDep = "org.scalariform" %% "scalariform" % ScalariformPlugin.Version % "sfConfig"
+  // Find the Scalariform jar downloaded as a dependency of the plugin
   private def sfClasspath: Option[String] = {
-    val jarFinder = descendents(configurationPath(sfConfig), "*.jar")
+  	val searchPaths = info.parent match {
+  		case None => info.pluginsManagedDependencyPath
+  		// If the current project inherits from a parent, the plugin could be declared at the parent level
+  		case Some(p) => info.pluginsManagedDependencyPath +++ p.info.pluginsManagedDependencyPath
+    }
+    val jarFinder = descendents(searchPaths, "scalariform*.jar")
+    if (jarFinder.get.size > 1) log.warn("Multiple scalariform jars found: " + jarFinder.absString)
     if (jarFinder.get.isEmpty) None else Some(jarFinder.absString)
   }
 
@@ -49,15 +50,13 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
   override def testCompileAction = super.testCompileAction dependsOn (testFormatSources)
 }
 object ScalariformPlugin {
-  val Version = "0.0.5-SNAPSHOT"
-
   /** The version of Scala used to run Scalariform.*/
   val ScalaVersion = "2.8.0"
 
   val MainClass = "scalariform.commandline.Main"
 
   def runFormatter(scalaJars: List[File], classpath: () => Option[String], options: Seq[ScalariformOption], log: Logger)(sources: Iterable[Path]): Option[String] = classpath() match {
-    case None => Some("Scalariform jar not found. Please run update.")
+    case None => Some("Scalariform jar not found. Try running `;clean-plugins;reload`.")
     case Some(cp) =>
       def run(listOfFiles: File): Option[String] = {
         val fork = new ForkScala(MainClass)

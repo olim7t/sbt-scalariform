@@ -14,10 +14,10 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 
   // Find the Scalariform jar downloaded as a dependency of the plugin
   private def sfClasspath: Option[String] = {
-  	val searchPaths = info.parent match {
-  		case None => info.pluginsManagedDependencyPath
-  		// If the current project inherits from a parent, the plugin could be declared at the parent level
-  		case Some(p) => info.pluginsManagedDependencyPath +++ p.info.pluginsManagedDependencyPath
+    val searchPaths = info.parent match {
+      case None => info.pluginsManagedDependencyPath
+      // If the current project inherits from a parent, the plugin could be declared at the parent level
+      case Some(p) => info.pluginsManagedDependencyPath +++ p.info.pluginsManagedDependencyPath
     }
     val jarFinder = descendents(searchPaths, "scalariform*.jar")
     if (jarFinder.get.size > 1) log.warn("Multiple scalariform jars found: " + jarFinder.absString)
@@ -32,6 +32,8 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
   def scalariformOptions = Seq[ScalariformOption]()
   def scalariformTestOptions = scalariformOptions
 
+  def scalaSourcesEncoding = "UTF-8"
+
   lazy val formatSources = formatSourcesAction
   lazy val testFormatSources = testFormatSourcesAction
 
@@ -39,11 +41,11 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
   def testSourcesTimestamp = "testSources.lastFormatted"
 
   def formatSourcesAction = forAllSourcesTask(sourcesTimestamp from mainSources) {
-    ScalariformPlugin.runFormatter(sfScalaJars, sfClasspath _, scalariformOptions, log) _
+    ScalariformPlugin.runFormatter(sfScalaJars, sfClasspath _, scalariformOptions, scalaSourcesEncoding, log) _
   } describedAs ("Format main Scala sources")
 
   def testFormatSourcesAction = forAllSourcesTask(testSourcesTimestamp from testSources) {
-    ScalariformPlugin.runFormatter(sfScalaJars, sfClasspath _, scalariformTestOptions, log) _
+    ScalariformPlugin.runFormatter(sfScalaJars, sfClasspath _, scalariformTestOptions, scalaSourcesEncoding, log) _
   } describedAs ("Format test Scala sources")
 
   override def compileAction = super.compileAction dependsOn (formatSources)
@@ -55,7 +57,7 @@ object ScalariformPlugin {
 
   val MainClass = "scalariform.commandline.Main"
 
-  def runFormatter(scalaJars: List[File], classpath: () => Option[String], options: Seq[ScalariformOption], log: Logger)(sources: Iterable[Path]): Option[String] = classpath() match {
+  def runFormatter(scalaJars: List[File], classpath: () => Option[String], options: Seq[ScalariformOption], encoding: String, log: Logger)(sources: Iterable[Path]): Option[String] = classpath() match {
     case None => Some("Scalariform jar not found. Try running `;clean-plugins;reload`.")
     case Some(cp) =>
       def run(listOfFiles: File): Option[String] = {
@@ -64,7 +66,7 @@ object ScalariformPlugin {
         val finalOpts = if ((options contains InPlace) || (options contains Test)) options else options ++ Seq(InPlace)
         val args = finalOpts.map(_.asArgument)
         withSuccessCode(0, "Scalariform invocation failed") {
-          fork(None, Seq("-cp", cp), scalaJars, args ++ Seq("-l=" + listOfFiles.getAbsolutePath), log)
+          fork(None, Seq("-cp", cp, "-Dfile.encoding=" + encoding), scalaJars, args ++ Seq("-l=" + listOfFiles.getAbsolutePath), log)
         }
       }
       withTemporaryFile(log, "sbt-scalariform", ".lst") { file =>

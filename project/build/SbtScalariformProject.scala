@@ -4,18 +4,17 @@
 package com.github.olim7t.sbtscalariform
 
 import sbt._
-import com.github.olim7t.sbtscalariform._
 
 class SbtScalariformProject(info: ProjectInfo) extends PluginProject(info)
-  with SxrConfig
-  with ScalariformConfig
+// Keeping that in local
+//  with SxrConfig
 {
   val scalaToolsSnapshotRepo = "Scala-Tools Maven Repository" at "http://scala-tools.org/repo-snapshots"
 
   val scalariform = "org.scalariform" % "scalariform_2.8.0" % "0.0.5-SNAPSHOT"
 
   // The test action runs an analysis of the jars that fails with a 2.8.0 jar in the classpath. Desactivating it as
-  // a workaround (I don't have tests yet anyway)
+  // a workaround
   override def testAction = task { None }
 
   override def managedStyle = ManagedStyle.Maven
@@ -36,9 +35,5 @@ trait SxrConfig extends BasicScalaProject with MavenStyleScalaPaths with AutoCom
     CompileOption("-P:sxr:base-directory:" + mainScalaSourcePath.absolutePath) ::
     CompileOption("-P:sxr:output-formats:vim") ::
     super.compileOptions.toList
-}
-
-trait ScalariformConfig extends BasicScalaProject with ScalariformPlugin {
-  override def scalariformOptions = Seq(VerboseScalariform)
 }
 

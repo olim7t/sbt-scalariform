@@ -41,12 +41,12 @@ object SourceTasks {
     }
   }
   def processAll(label: String, files: TimestampSources, log: Logger)(globalAction: Iterable[Path] => Option[String]): Option[String] = {
+  	import ChainedAction._
     import files._
     val modified = sources.filter(_.lastModified > timestamp.lastModified)
     if (modified isEmpty)
       None
     else
-      globalAction(modified) orElse
-        FileUtilities.touch(timestamp, log)
+      globalAction(modified) andThen FileUtilities.touch(timestamp, log)
   }
 }

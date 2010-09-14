@@ -9,9 +9,50 @@ import scala.io.Source
 import java.io.File
 import FileUtilities.{ Newline, write }
 import Actions._
+import ChainedAction._
 
 trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
   import ScalariformPlugin._
+
+  def scalariformOptions = Seq[ScalariformOption]()
+  def scalariformTestOptions = scalariformOptions
+  def scalaSourcesEncoding = "UTF-8"
+  def sourcesTimestamp = "sources.lastFormatted"
+  def testSourcesTimestamp = "testSources.lastFormatted"
+
+  lazy val formatSources = formatSourcesAction
+  lazy val testFormatSources = testFormatSourcesAction
+
+  def formatSourcesAction = forAllSourcesTask(sourcesTimestamp from mainSources) { sources =>
+    format(sources, scalariformOptions)
+  } describedAs ("Format main Scala sources")
+
+  def testFormatSourcesAction = forAllSourcesTask(testSourcesTimestamp from testSources) { sources =>
+    format(sources, scalariformTestOptions)
+  } describedAs ("Format test Scala sources")
+
+  override def compileAction = super.compileAction dependsOn (formatSources)
+  override def testCompileAction = super.testCompileAction dependsOn (testFormatSources)
+
+  private val Scalariform = new ForkScala(ScalariformMainClass)
+  private val NoJavaHome = None
+
+  private def format(sources: Iterable[Path], options: Seq[ScalariformOption]): Option[String] = sfClasspath match {
+    case None => Some("Scalariform jar not found. Try running `;clean-plugins;reload`.")
+    case Some(cp) =>
+      def run(fileList: File): Option[String] = {
+        val jvmOptions = Seq("-cp", cp, "-Dfile.encoding=" + scalaSourcesEncoding)
+        val finalOpts = completeWithDefaults(options)
+        val arguments = finalOpts.map(_.asArgument) ++ Seq("-l=" + fileList.getAbsolutePath)
+
+        withSuccessCode(0, "Scalariform invocation failed") {
+          Scalariform(NoJavaHome, jvmOptions, sfScalaJars, arguments, log)
+        }
+      }
+      withTemporaryFile(log, "sbt-scalariform", ".lst") { file =>
+        write(file, sources.map(_.absolutePath).mkString(Newline), log) andThen run(file)
+      }
+  }
 
   // Find the Scalariform jar, which has been downloaded as a dependency of the plugin
   private def sfClasspath: Option[String] = {
@@ -34,49 +75,11 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
     si.libraryJar :: si.compilerJar :: Nil
   }
 
-  def scalariformOptions = Seq[ScalariformOption]()
-  def scalariformTestOptions = scalariformOptions
-
-  def scalaSourcesEncoding = "UTF-8"
-
-  lazy val formatSources = formatSourcesAction
-  lazy val testFormatSources = testFormatSourcesAction
-
-  def sourcesTimestamp = "sources.lastFormatted"
-  def testSourcesTimestamp = "testSources.lastFormatted"
-
-  def formatSourcesAction = forAllSourcesTask(sourcesTimestamp from mainSources) { sources =>
-    format(sources, scalariformOptions)
-  } describedAs ("Format main Scala sources")
-
-  def testFormatSourcesAction = forAllSourcesTask(testSourcesTimestamp from testSources) { sources =>
-    format(sources, scalariformTestOptions)
-  } describedAs ("Format test Scala sources")
-
-  override def compileAction = super.compileAction dependsOn (formatSources)
-  override def testCompileAction = super.testCompileAction dependsOn (testFormatSources)
-
-  private def format(sources: Iterable[Path], options: Seq[ScalariformOption]): Option[String] = sfClasspath match {
-    case None => Some("Scalariform jar not found. Try running `;clean-plugins;reload`.")
-    case Some(cp) =>
-      def run(fileList: File): Option[String] = {
-        val fork = new ForkScala(ScalariformMainClass)
-        // Assume InPlace if neither InPlace nor Test are provided
-        val finalOpts = if ((options contains InPlace) || (options contains Test)) options else options ++ Seq(InPlace)
-        val args = finalOpts.map(_.asArgument)
-        withSuccessCode(0, "Scalariform invocation failed") {
-          fork(None,
-            Seq("-cp", cp, "-Dfile.encoding=" + scalaSourcesEncoding),
-            sfScalaJars,
-            args ++ Seq("-l=" + fileList.getAbsolutePath),
-            log)
-        }
-      }
-      withTemporaryFile(log, "sbt-scalariform", ".lst") { file =>
-        write(file, sources.map(_.absolutePath).mkString(Newline), log) orElse
-          run(file)
-      }
-  }
+  private def completeWithDefaults(options: Seq[ScalariformOption]) =
+    if ((options contains InPlace) || (options contains Test))
+    	options
+    else
+    	options ++ Seq(InPlace)
 }
 object ScalariformPlugin {
   /** The version of Scala used to run Scalariform.*/

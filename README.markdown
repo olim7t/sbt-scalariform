@@ -13,7 +13,7 @@ This is done in `project/plugins/Plugins.scala`:
 	  // of Scalariform; see the release notes for more explanations.
 	  val scalatoolsSnapshot = "Scala Tools Snapshot" at "http://scala-tools.org/repo-snapshots/"
 	  
-	  val formatter = "com.github.olim7t" % "sbt-scalariform" % "1.0.1"
+	  val formatter = "com.github.olim7t" % "sbt-scalariform" % "1.0.2-SNAPSHOT"
 	}
 
 ##Configuring a simple project
@@ -34,9 +34,27 @@ This will by default format all your main and test sources. If you need to custo
 	  // Completely disable formatting of the tests
 	  override def testFormatSourcesAction = task { None }
 
-You can also use a separate set of options for test sources:
+###Using specific options for test sources
 
 	  override def scalariformTestOptions = Seq(PreserveSpaceBeforeArguments(true))
+
+###Specifying the sources' encoding
+
+The default is UTF-8.
+
+	  override def scalaSourcesEncoding = "ISO-8859-1"
+
+###Controlling failure behavior
+
+By default, a Scalariform failure does not abort the whole build: the error is logged, the files that couldn't be formatted are left as-is, and the build proceeds to compilation. There are two reasons for this:
+
+* in the event of a Scalariform bug, valid Scala code should not be prevented from compiling;
+* if the error is a genuine Scala error, the Scala compiler currently provides better error messages.
+
+To override this behavior:
+
+	  // Abort the build if Scalariform fails:
+	  override def failOnFormattingError = true
 
 ##Configuring a multi-module project
 

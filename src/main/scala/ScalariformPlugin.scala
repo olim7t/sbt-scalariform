@@ -17,22 +17,25 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
   def scalariformOptions = Seq[ScalariformOption]()
   def scalariformTestOptions = scalariformOptions
   def scalaSourcesEncoding = "UTF-8"
+  def failOnFormattingError: Boolean = false
   def sourcesTimestamp = "sources.lastFormatted"
   def testSourcesTimestamp = "testSources.lastFormatted"
+
 
   lazy val formatSources = formatSourcesAction
   lazy val testFormatSources = testFormatSourcesAction
 
-  def formatSourcesAction = forAllSourcesTask(sourcesTimestamp from mainSources) { sources =>
+  def formatSourcesAction = forAllSourcesTask(sourcesTimestamp from mainSources, failOnFormattingError) { sources =>
     format(sources, scalariformOptions)
   } describedAs ("Format main Scala sources")
 
-  def testFormatSourcesAction = forAllSourcesTask(testSourcesTimestamp from testSources) { sources =>
+  def testFormatSourcesAction = forAllSourcesTask(testSourcesTimestamp from testSources, failOnFormattingError) { sources =>
     format(sources, scalariformTestOptions)
   } describedAs ("Format test Scala sources")
 
   override def compileAction = super.compileAction dependsOn (formatSources)
   override def testCompileAction = super.testCompileAction dependsOn (testFormatSources)
+
 
   private val Scalariform = new ForkScala(ScalariformMainClass)
   private val NoJavaHome = None

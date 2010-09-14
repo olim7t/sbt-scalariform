@@ -28,10 +28,10 @@ trait SourceTasks extends Project {
     SourceTasks.wrapTimestamp(outputPath, name)
 
   /** Runs a global action that takes the list of modified sources. */
-  def forAllSourcesTask(label: String, files: TimestampSources)(action: Iterable[Path] => Option[String]): Task =
-    task { SourceTasks.processAll(label, files, log)(action) }
-  def forAllSourcesTask(files: TimestampSources)(action: Iterable[Path] => Option[String]): Task =
-    forAllSourcesTask("", files)(action)
+  def forAllSourcesTask(label: String, files: TimestampSources, failOnError: Boolean)(action: Iterable[Path] => Option[String]): Task =
+    task { SourceTasks.processAll(label, files, failOnError, log)(action) }
+  def forAllSourcesTask(files: TimestampSources, failOnError: Boolean)(action: Iterable[Path] => Option[String]): Task =
+    forAllSourcesTask("", files, failOnError)(action)
 }
 object SourceTasks {
   implicit def wrapTimestamp(basePath: Path, name: String): TimestampWrapper = new TimestampWrapper {
@@ -40,13 +40,20 @@ object SourceTasks {
       def sources = sourceFinder.get
     }
   }
-  def processAll(label: String, files: TimestampSources, log: Logger)(globalAction: Iterable[Path] => Option[String]): Option[String] = {
+  def processAll(label: String, files: TimestampSources, failOnError: Boolean, log: Logger)(globalAction: Iterable[Path] => Option[String]): Option[String] = {
   	import ChainedAction._
     import files._
     val modified = sources.filter(_.lastModified > timestamp.lastModified)
     if (modified isEmpty)
       None
-    else
-      globalAction(modified) andThen FileUtilities.touch(timestamp, log)
+    else {
+      val outcome = globalAction(modified) andThen FileUtilities.touch(timestamp, log)
+      if (failOnError)
+      	outcome
+     	else {
+        outcome.map(m => log.warn(m))
+        None
+      }
+    }
   }
 }

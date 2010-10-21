@@ -1,3 +1,7 @@
+1.0.2 (2010-10-21)
+- Upgrade to Scalariform 0.0.7.
+- New option to disable automatic formatting.
+
 1.0.1 (2010-08-25)
 - Better handling of the Scalariform dependency.
 - Tested and documented multi-modules setups.

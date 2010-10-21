@@ -9,11 +9,7 @@ This is done in `project/plugins/Plugins.scala`:
 	import sbt._
 	
 	class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
-	  // Required because the plugin currently depends on a snapshot version
-	  // of Scalariform; see the release notes for more explanations.
-	  val scalatoolsSnapshot = "Scala Tools Snapshot" at "http://scala-tools.org/repo-snapshots/"
-	  
-	  val formatter = "com.github.olim7t" % "sbt-scalariform" % "1.0.2-SNAPSHOT"
+	  val formatter = "com.github.olim7t" % "sbt-scalariform" % "1.0.2"
 	}
 
 ##Configuring a simple project

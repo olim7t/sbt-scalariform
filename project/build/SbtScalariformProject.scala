@@ -9,9 +9,7 @@ class SbtScalariformProject(info: ProjectInfo) extends PluginProject(info)
 // Keeping that in local
 //  with SxrConfig
 {
-  val scalaToolsSnapshotRepo = "Scala-Tools Maven Repository" at "http://scala-tools.org/repo-snapshots"
-
-  val scalariform = "org.scalariform" % "scalariform_2.8.0" % "0.0.5-SNAPSHOT"
+  val scalariform = "org.scalariform" % "scalariform_2.8.0" % "0.0.7"
 
   // The test action runs an analysis of the jars that fails with a 2.8.0 jar in the classpath. Desactivating it as
   // a workaround

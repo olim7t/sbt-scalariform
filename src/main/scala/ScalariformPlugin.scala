@@ -17,6 +17,7 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
   def scalariformOptions = Seq[ScalariformOption]()
   def scalariformTestOptions = scalariformOptions
   def scalaSourcesEncoding = "UTF-8"
+  def formatBeforeCompiling: Boolean = true
   def failOnFormattingError: Boolean = false
   def sourcesTimestamp = "sources.lastFormatted"
   def testSourcesTimestamp = "testSources.lastFormatted"
@@ -33,8 +34,8 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
     format(sources, scalariformTestOptions)
   } describedAs ("Format test Scala sources")
 
-  override def compileAction = super.compileAction dependsOn (formatSources)
-  override def testCompileAction = super.testCompileAction dependsOn (testFormatSources)
+  override def compileAction = dependIfNeeded(super.compileAction, formatSources)
+  override def testCompileAction = dependIfNeeded(super.testCompileAction, testFormatSources)
 
 
   private val Scalariform = new ForkScala(ScalariformMainClass)
@@ -83,6 +84,8 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
     	options
     else
     	options ++ Seq(InPlace)
+
+  private def dependIfNeeded(compile: Task, format: Task) = if (formatBeforeCompiling) compile dependsOn (format) else compile
 }
 object ScalariformPlugin {
   /** The version of Scala used to run Scalariform.*/

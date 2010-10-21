@@ -29,9 +29,18 @@ Mix the `ScalariformPlugin` trait into your project definition and customize the
 	  override def scalariformOptions = Seq(VerboseScalariform)
 	}
 
-This will by default format all your main and test sources. If you need to customize this behavior, you can override the `formatSourcesAction` and `testFormatSourcesAction` methods, for instance:
+This will by default format all your main and test sources before each compilation.
 
-	  // Completely disable formatting of the tests
+###Disabling automatic formatting
+
+	  override def formatBeforeCompiling = false
+
+The formatting actions still exist, but are not run automatically. You need to run `format-sources` or `test-format-sources` manually from the sbt prompt.
+
+###Disabling formatting
+
+You can override `formatSourcesAction` or `testFormatSourcesAction` to completely remove the corresponding action. A typical scenario is when you keep automatic mode, but don't want to format the test sources:
+
 	  override def testFormatSourcesAction = task { None }
 
 ###Using specific options for test sources

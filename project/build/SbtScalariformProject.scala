@@ -9,7 +9,7 @@ class SbtScalariformProject(info: ProjectInfo) extends PluginProject(info)
 // Keeping that in local
 //  with SxrConfig
 {
-  val scalariform = "org.scalariform" % "scalariform_2.8.0" % "0.0.7"
+  val scalariform = "org.scalariform" % "scalariform_2.8.1" % "0.0.9"
 
   // The test action runs an analysis of the jars that fails with a 2.8.0 jar in the classpath. Desactivating it as
   // a workaround

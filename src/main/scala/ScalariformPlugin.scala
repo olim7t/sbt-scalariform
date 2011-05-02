@@ -81,15 +81,15 @@ trait ScalariformPlugin extends BasicScalaProject with SourceTasks {
 
   private def completeWithDefaults(options: Seq[ScalariformOption]) =
     if ((options contains InPlace) || (options contains Test))
-    	options
+      options
     else
-    	options ++ Seq(InPlace)
+      options ++ Seq(InPlace)
 
   private def dependIfNeeded(compile: Task, format: Task) = if (formatBeforeCompiling) compile dependsOn (format) else compile
 }
 object ScalariformPlugin {
   /** The version of Scala used to run Scalariform.*/
-  val ScalaVersion = "2.8.0"
+  val ScalaVersion = "2.8.1"
 
   val ScalariformMainClass = "scalariform.commandline.Main"
 }

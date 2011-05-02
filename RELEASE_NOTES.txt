@@ -1,3 +1,13 @@
+1.0.3 (2011-05-02)
+- Upgrade to Scalariform 0.0.9.
+- Upgrade sbt to 0.7.5.
+- Use Scala 2.8.1 to execute Scalariform.
+
+Known issue:
+  the MaxArrowIndent option doesn't work. This seems to be a problem
+  with Scalariform itself. I've opened issue #20 on the project
+  (https://github.com/mdr/scalariform/issues/20).
+
 1.0.2 (2010-10-21)
 - Upgrade to Scalariform 0.0.7.
 - New option to disable automatic formatting.

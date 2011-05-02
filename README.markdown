@@ -9,7 +9,7 @@ This is done in `project/plugins/Plugins.scala`:
 	import sbt._
 	
 	class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
-	  val formatter = "com.github.olim7t" % "sbt-scalariform" % "1.0.2"
+	  val formatter = "com.github.olim7t" % "sbt-scalariform" % "1.0.3"
 	}
 
 ##Configuring a simple project

@@ -73,6 +73,12 @@ case class SpaceBeforeColon(enabled: Boolean) extends BooleanOption {
 //case class SpacesWithinPatternBinders(enabled: Boolean) extends BooleanOption {
 //  override def name = "spacesWithinPatternBinders"
 //}
+
+// Scalariform 0.1.1-SNAPSHOT (issue #22, pull request #26)
+//case class CompactControlReadability(enabled: Boolean) extends BooleanOption {
+//  override def name = "compactControlReadability"
+//}
+
 case object VerboseScalariform extends ScalariformOption {
   override def asArgument = "-v"
 }
